@@ -23,11 +23,10 @@ import {ObjectUtils} from '../utils/objectutils';
                     <input type="text" role="textbox" (keyup)="onFilter($event,source,-1)" class="ui-picklist-filter ui-inputtext ui-widget ui-state-default ui-corner-all" [disabled]="disabled" [attr.placeholder]="sourceFilterPlaceholder">
                     <span class="fa fa-search"></span>
                 </div>
-                <ul #sourcelist class="ui-widget-content ui-picklist-list ui-picklist-source ui-corner-bottom" [ngStyle]="sourceStyle" (dragover)="onListMouseMove($event,-1)">
-                    <li class="ui-picklist-droppoint-empty" *ngIf="dragdrop && source && source.length == 0" 
-                    (dragover)="onEmptyListDragOver($event, -1)" (drop)="onEmptyListDrop($event, -1)"></li>
+                <ul #sourcelist (dragover)="inSpace = true; onDragOverSpace($event, -1)" (drop)="'inSpace' ? onEmptyListDrop($event, -1) : null" class="ui-widget-content ui-picklist-list ui-picklist-source ui-corner-bottom" [ngStyle]="sourceStyle" (dragover)="onListMouseMove($event,-1)">
+                    
                     <ng-template ngFor let-item [ngForOf]="source" let-i="index" let-l="last">
-                        <li class="ui-picklist-droppoint" *ngIf="dragdrop" (dragover)="onDragOver($event, i, -1)" (drop)="onDrop($event, i, -1)" (dragleave)="onDragLeave($event, -1)" 
+                        <li class="ui-picklist-droppoint" *ngIf="dragdrop" (dragover)="inSpace = false; onDragOver($event, i, -1)" (drop)="inSpace = false; onDrop($event, i, -1)" (dragleave)="onDragLeave($event, -1)" 
                         [ngClass]="{'ui-state-highlight': (i === dragOverItemIndexSource)}" [style.display]="isItemVisible(item, -1) ? 'block' : 'none'"></li>
                         <li [ngClass]="{'ui-picklist-item':true,'ui-state-highlight':isSelected(item,selectedItemsSource)}"
                             (click)="onItemClick($event,item,selectedItemsSource)" (touchend)="onItemTouchEnd($event)"
@@ -35,7 +34,7 @@ import {ObjectUtils} from '../utils/objectutils';
                             [draggable]="dragdrop" (dragstart)="onDragStart($event, i, -1)" (dragend)="onDragEnd($event)">
                             <ng-template [pTemplateWrapper]="itemTemplate" [item]="item"></ng-template>
                         </li>
-                        <li class="ui-picklist-droppoint" *ngIf="dragdrop&&l" (dragover)="onDragOver($event, i + 1, -1)" (drop)="onDrop($event, i + 1, -1)" (dragleave)="onDragLeave($event, -1)" 
+                        <li class="ui-picklist-droppoint" *ngIf="dragdrop&&l" (dragover)="inSpace = false; onDragOver($event, i + 1, -1)" (drop)="inSpace = false; onDrop($event, i + 1, -1)" (dragleave)="onDragLeave($event, -1)" 
                         [ngClass]="{'ui-state-highlight': (i + 1 === dragOverItemIndexSource)}"></li>
                     </ng-template>
                 </ul>
@@ -54,11 +53,10 @@ import {ObjectUtils} from '../utils/objectutils';
                     <input type="text" role="textbox" (keyup)="onFilter($event,target,1)" class="ui-picklist-filter ui-inputtext ui-widget ui-state-default ui-corner-all" [disabled]="disabled" [attr.placeholder]="targetFilterPlaceholder">
                     <span class="fa fa-search"></span>
                 </div>
-                <ul #targetlist class="ui-widget-content ui-picklist-list ui-picklist-target ui-corner-bottom" [ngStyle]="targetStyle" (dragover)="onListMouseMove($event,1)">
-                    <li class="ui-picklist-droppoint-empty" *ngIf="dragdrop && target && target.length == 0" 
-                    (dragover)="onEmptyListDragOver($event, 1)" (drop)="onEmptyListDrop($event, 1)"></li>
+                <ul #targetlist (dragover)="inSpace = true; onDragOverSpace($event, -1)" (drop)="'inSpace' ? onEmptyListDrop($event, 1) : null" class="ui-widget-content ui-picklist-list ui-picklist-target ui-corner-bottom" [ngStyle]="targetStyle" (dragover)="onListMouseMove($event,1)">
+                    
                     <ng-template ngFor let-item [ngForOf]="target" let-i="index" let-l="last">
-                        <li class="ui-picklist-droppoint" *ngIf="dragdrop" (dragover)="onDragOver($event, i, 1)" (drop)="onDrop($event, i, 1)" (dragleave)="onDragLeave($event, 1)" 
+                        <li class="ui-picklist-droppoint" *ngIf="dragdrop" (dragover)="inSpace = false; onDragOver($event, i, 1)" (drop)="onDrop($event, i, 1)" (dragleave)="onDragLeave($event, 1)" 
                         [ngClass]="{'ui-state-highlight': (i === dragOverItemIndexTarget)}" [style.display]="isItemVisible(item, 1) ? 'block' : 'none'"></li>
                         <li [ngClass]="{'ui-picklist-item':true,'ui-state-highlight':isSelected(item,selectedItemsTarget)}"
                             (click)="onItemClick($event,item,selectedItemsTarget)" (touchend)="onItemTouchEnd($event)"
@@ -66,7 +64,7 @@ import {ObjectUtils} from '../utils/objectutils';
                             [draggable]="dragdrop" (dragstart)="onDragStart($event, i, 1)" (dragend)="onDragEnd($event)">
                             <ng-template [pTemplateWrapper]="itemTemplate" [item]="item"></ng-template>
                         </li>
-                        <li class="ui-picklist-droppoint" *ngIf="dragdrop&&l" (dragover)="onDragOver($event, i + 1, 1)" (drop)="onDrop($event, i + 1, 1)" (dragleave)="onDragLeave($event, 1)" 
+                        <li class="ui-picklist-droppoint" *ngIf="dragdrop&&l" (dragover)="inSpace = false; onDragOver($event, i + 1, 1)" (drop)="inSpace = false; onDrop($event, i + 1, 1)" (dragleave)="onDragLeave($event, 1)" 
                         [ngClass]="{'ui-state-highlight': (i + 1 === dragOverItemIndexTarget)}"></li>
                     </ng-template>
                 </ul>
@@ -142,6 +140,8 @@ export class PickList implements AfterViewChecked,AfterContentInit {
     public visibleOptionsSource: any[];
     
     public visibleOptionsTarget: any[];
+    
+    inSpace: boolean = false;
             
     selectedItemsSource: any[] = [];
     
@@ -204,6 +204,10 @@ export class PickList implements AfterViewChecked,AfterContentInit {
             this.movedDown = false;
             this.reorderedListElement = null;
         }
+    }
+    
+    test() {
+      console.log("axc");
     }
     
     onItemClick(event, item: any, selectedItems: any[]) {
@@ -488,6 +492,20 @@ export class PickList implements AfterViewChecked,AfterContentInit {
         }
     }
     
+    onDragOverSpace(event: DragEvent, listType: number) {
+      
+      console.log("space");
+      
+      if(listType == -1) {
+          this.dragOverItemIndexSource = this.source.length-1;
+          event.preventDefault();
+      }
+      else {
+          this.dragOverItemIndexTarget = this.target.length-1;
+            event.preventDefault();
+      }
+    }
+    
     onDragLeave(event: DragEvent, listType: number) {
         this.dragOverItemIndexSource = null; 
         this.dragOverItemIndexTarget = null;
@@ -512,6 +530,8 @@ export class PickList implements AfterViewChecked,AfterContentInit {
         }
         
         event.preventDefault();
+        
+        this.inSpace = false;
     }
     
     onDragEnd(event: DragEvent) {
@@ -519,12 +539,17 @@ export class PickList implements AfterViewChecked,AfterContentInit {
     }
     
     onEmptyListDrop(event: DragEvent, listType: number) {
+        
+        console.log("dropped");
+        
         if(listType === -1)
             this.insert(this.draggedItemIndexTarget, this.target, null, this.source);
         else
             this.insert(this.draggedItemIndexSource, this.source, null, this.target);
             
         event.preventDefault();
+        
+        this.inSpace = false;
     }
     
     onEmptyListDragOver(event: DragEvent, listType: number) {
